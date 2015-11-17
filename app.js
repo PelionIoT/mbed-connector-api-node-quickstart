@@ -3,12 +3,12 @@ var MbedConnector = require('mbed-connector');
 var app = express();
 
 /* BEGIN EDITS */
-//var mbedConnectorAPIKey = "Your API Key";
+//var mbedConnectorAccessKey = "Your Access Key";
 //var endpointName = "Your endpoint name";
 var port = 3000;
 /* END EDITS */
 
-var mbedConnector = new MbedConnector("https://api.connector.mbed.com", { token: mbedConnectorAPIKey });
+var mbedConnector = new MbedConnector("https://api.connector.mbed.com", { token: mbedConnectorAccessKey });
 
 app.get('/', function (req, res) {
   mbedConnector.getResource(endpointName, 'Test/0/D', function(error, data) {
