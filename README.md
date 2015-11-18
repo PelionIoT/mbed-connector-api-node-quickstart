@@ -32,7 +32,12 @@ You can usually leave `port` set to 3000. However, if you know you have another 
 
 ## Running the App
 
-Once you've [configured the app](#configuring-the-app), you can run it by using the following command:
+Once you've [configured the app](#configuring-the-app), you need to install its dependencies:
+```
+npm install
+```
+
+You can run it by using the following command:
 
 ```
 node app.js
