@@ -59,10 +59,10 @@ Refreshing the page will update the "Button Presses" value.
 1. Login to your account at [https://connector.mbed.com](https://connector.mbed.com).
 2. Under **My applications**, click **Access keys**.
 3. Click **Create New Access Key**. When prompted, enter a name for the access key (ex. "Quickstart") and click **ADD**.
-4. Copy the access key you just created and use it when you're [configuring your app](#configuring-the-app)
+4. Copy the access key you just created and use it when you're [configuring your app](#configuring-the-app).
 
 ### Finding Your Endpoint's Name
 
 1. Login to your account at [https://connector.mbed.com](https://connector.mbed.com).
 2. Under **My devices**, click **Connected devices**.
-3. Find your endpoint in the list. Copy its name and use it when you're [configuring your app](#configuring-the-app)
+3. Find your endpoint in the list. Copy its name and use it when you're [configuring your app](#configuring-the-app).
