@@ -4,13 +4,22 @@ Example Node.js express app that talks to the mbed Device Connector.
 
 ## Getting Started
 
-### Installing Node.js
+### Installing Node.js and npm
 
-You'll need to have Node.js installed.
+You need to have Node.js and npm installed.
 
-If you're using Windows or Mac, you can download the installer [here](https://nodejs.org/en/download).
+To check if you have them installed, open a terminal or command prompt and run the following commands:
 
-If you're using Linux, you can install from a package manager. Instructions for installing Node.js on your distribution can be found [here](https://nodejs.org/en/download/package-manager)
+```
+node --version
+npm --version
+```
+
+If you see an number output similar to x.x.x for each command, then they are both installed and you can continue to the next section.
+
+To install on Windows or Mac, you can download the installer [here](https://nodejs.org/en/download).
+
+To install on Linux, you can use a package manager. Instructions for installing Node.js on your distribution can be found [here](https://nodejs.org/en/download/package-manager)
 
 ### Running mbed Client
 
