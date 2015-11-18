@@ -4,6 +4,16 @@ Example Node.js express app that talks to the mbed Device Connector.
 
 ## Getting Started
 
+### Installing Node.js
+
+You'll need to have Node.js installed.
+
+If you're using Windows or Mac, you can download the installer [here](https://nodejs.org/en/download).
+
+If you're using Linux, you can install from a package manager. Instructions for installing Node.js on your distribution can be found [here](https://nodejs.org/en/download/package-manager)
+
+### Running mbed Client
+
 This example assumes that you have an mbed Client connected to mbed Device Connector.
 
 If you have an mbed, you can use the [mbed Client Example](https://github.com/ARMmbed/mbed-client-examples).
@@ -32,12 +42,12 @@ You can usually leave `port` set to 3000. However, if you know you have another 
 
 ## Running the App
 
-Once you've [configured the app](#configuring-the-app), you need to install its dependencies:
+Once you've [configured the app](#configuring-the-app), you need to install its dependencies. Open a terminal or command prompt and run this command:
 ```
 npm install
 ```
 
-You can run it by using the following command:
+You can now run the app by using the following command:
 
 ```
 node app.js
@@ -53,9 +63,9 @@ Copy and paste the printed URL into your browser and you should see a page listi
 
 If you're running the mbed Client on an mbed, press the button indicated in the [mbed Client Example](https://github.com/ARMmbed/mbed-client-examples#testing) testing section.
 
-If you're running the mbed Client on Linux, the "button presses" should increment every 10 seconds.
+If you're running the mbed Client on Linux, the button presses should increment every 10 seconds.
 
-Refreshing the page will update the "Button Presses" value.
+Refresh the page to update the "Button Presses" to the most recent value.
 
 ## Appendix
 
