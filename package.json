@@ -10,8 +10,12 @@
     "name": "Brian Daniels",
     "email": "brian.daniels@arm.com"
   },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/ARMmbed/mbed-connector-node-quickstart.git"
+  },
   "dependencies": {
     "express": "^4.13.3",
-    "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#1.2.0"
+    "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#1.2.1"
   }
 }
