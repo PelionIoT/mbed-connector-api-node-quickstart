@@ -5,7 +5,7 @@ var app = express();
 /* BEGIN EDITS */
 //var mbedConnectorAccessKey = "Your Access Key";
 //var endpointName = "Your endpoint name";
-var port = 3000;
+var port = process.env.PORT || 3000;
 /* END EDITS */
 
 var mbedConnector = new MbedConnector("https://api.connector.mbed.com", { token: mbedConnectorAccessKey });
@@ -26,7 +26,7 @@ app.get('/', function (req, res) {
   });
 });
 
-var server = app.listen(3000, function () {
+var server = app.listen(port, function () {
   console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
 
   mbedConnector.startLongPolling();
