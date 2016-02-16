@@ -11,11 +11,13 @@
     "email": "brian.daniels@arm.com"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/ARMmbed/mbed-connector-node-quickstart.git"
+    "type": "git",
+    "url": "https://github.com/ARMmbed/mbed-connector-node-quickstart.git"
   },
   "dependencies": {
     "express": "^4.13.3",
-    "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#1.2.1"
+    "hbs": "~3.1.0",
+    "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#release-2.0.0",
+    "socket.io": "^1.4.5"
   }
 }

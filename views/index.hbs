@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <h1>Endpoints</h1>
+    <ul id="endpoints">
+    {{#each endpoints}}
+      <li id="{{name}}">
+        <h2>{{name}}</h2>
+        <h4>Presses: <span class="presses-value">Unknown</span></h4>
+        <label><input type="checkbox" class="subscribe-presses"> Subscribe</label>
+        <button class="get-presses">GET</button>
+      </li>
+    {{/each}}
+    </ul>
+    
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        var socket = io();
+        
+        $('#endpoints').children().each(function(index, element) {
+          var _this = $(this);
+          _this.find('.subscribe-presses').change(function() {
+            if ($(this).is(":checked")) {
+              _this.find('.get-presses').prop('disabled', true);
+              socket.emit('subscribe-to-presses', {
+                endpointName: _this.attr('id')
+              });
+            } else {
+              _this.find('.get-presses').prop('disabled', false);
+              socket.emit('unsubscribe-to-presses', {
+                endpointName: _this.attr('id')
+              });
+            }
+          });
+          
+          _this.find('.get-presses').on('click', function() {
+            socket.emit('get-presses', {
+              endpointName: _this.attr('id')
+            });
+          });
+        });
+        
+        
+        socket.on('presses', function (data) {
+          console.log('presses', data);
+          $('#' + data.endpointName + ' .presses-value').html(data.value);
+        });
+        
+        socket.on('subscribed-to-presses', function (data) {
+          console.log('subscribed-to-presses', data);
+        });
+        
+        socket.on('unsubscribed-to-presses', function (data) {
+          console.log('unsubscribed-to-presses', data);
+        });
+      });
+    </script>
+  </body>
+</html>
