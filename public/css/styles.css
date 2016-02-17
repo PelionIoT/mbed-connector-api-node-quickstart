@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2013-2015, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.switch {
+  margin-bottom: 0;
+  display: inline-block;
+}
+
+.margin {
+  margin: 1rem auto;
+}
+
+.blueband {
+  background-color: #159ab5;
+}
+
+.blueband h1 {
+  color: #fff;
+}
+
+.update-blink-pattern {
+  transition: background 0.5s;
+  -webkit-transition: background 0.5s;
+  -moz-transition: background 0.5s;
+  -o-transition: background 0.5s;
+}
+
+.outlet h3 {
+  color: #fff;
+  margin: 0;
+  line-height: 78px;
+}
+
+.spinner {
+  line-height: 78px;
+}
+
+.switch .outlet-switch {
+  background-image: url('/img/lightbulb_off.png');
+  background-size: 77px 78px;
+  margin-bottom: 0;
+  display: block;
+  width: 77px;
+  height: 78px;
+}
+
+.switch .outlet-switch.checked {
+  background-image: url('/img/lightbulb_on.png');
+}
+
+.row .row.outlet {
+  padding: 0.5rem 0;
+  background-color: #0084ab;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.active {
+  background-color: #fba92f;
+}

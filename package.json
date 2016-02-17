@@ -15,6 +15,7 @@
     "url": "https://github.com/ARMmbed/mbed-connector-node-quickstart.git"
   },
   "dependencies": {
+    "async": "^1.5.2",
     "express": "^4.13.3",
     "hbs": "~3.1.0",
     "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#release-2.0.0",

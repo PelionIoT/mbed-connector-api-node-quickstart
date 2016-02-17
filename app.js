@@ -1,103 +1,88 @@
-var express = require('express');
-var path = require('path');
+// Require necessary libraries
+var async = require('async');
 var MbedConnector = require('mbed-connector');
-var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+var Quickstart = require('./quickstart');
 
-/* BEGIN EDITS */
-//var mbedConnectorAccessKey = "Your Access Key";
-var port = process.env.PORT || 3000;
-/* END EDITS */
+// CONFIG (change these)
+var accessKey = "<Access Key>";
+var port = 3000;
 
-var mbedConnector = new MbedConnector({ accessKey: mbedConnectorAccessKey });
+// Paths to resources on the endpoints
+var blinkResourceURI = "/3201/0/5850";
+var blinkPatternResourceURI = "/3201/0/5853";
+var buttonResourceURI = "/3200/0/5501";
 
-var sockets = [];
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-
-app.get('/', function (req, res) {
-  mbedConnector.getEndpoints(function(error, endpoints) {
-    if (error) {
-      res.send(String(error));
-    } else {
-      res.render('index', {
-        endpoints: endpoints
-      });
-    }
-  });
+// Instantiate an mbed Device Connector object
+var mbedConnector = new MbedConnector({
+  accessKey: process.env.ACCESS_KEY || accessKey // Allow access key to be overriden by an environment variable if need be
 });
 
-app.use(function(err, req, res, next) {
-  console.log(err.stack);
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: err
-  });
-});
+// Create the Quickstart app
+var myQuickstart = new Quickstart({
+  // Set up the notification channel (pull notifications)
+  startLongPolling: function(callback) {
+    mbedConnector.startLongPolling(callback);
+  },
 
-io.on('connection', function (socket) {
-  sockets.push(socket);
-
-  socket.on('subscribe-to-presses', function (data) {
-    console.log('subscribe-to-presses', data);
-    mbedConnector.putResourceSubscription(data.endpointName, 'Test/0/D', function(error) {
-      console.log('putResourceSubscription', error);
+  // Get all of the endpoints and necessary info to render the page
+  getEndpoints: function(callback) {
+    mbedConnector.getEndpoints(function(error, endpoints) {
       if (error) {
-        console.log(String(error));
+        callback(error);
       } else {
-        socket.emit('subscribed-to-presses', {
-          endpointName: data.endpointName
+        // Setup the function array
+        var functionArray = endpoints.map(function(endpoint) {
+          return function(mapCallback) {
+            mbedConnector.getResourceValue(endpoint.name, blinkPatternResourceURI, function(error, value) {
+              endpoint.blinkPattern = value;
+              mapCallback(error);
+            });
+          };
+        });
+
+        // Fetch all blink patterns in parallel, finish whell all HTTP
+        // requests are complete (uses Async.js library)
+        async.parallel(functionArray, function(error) {
+          callback(error, endpoints);
         });
       }
     });
-  });
+  },
 
-  socket.on('unsubscribe-to-presses', function (data) {
-    console.log('unsubscribe-to-presses', data);
-    mbedConnector.deleteResourceSubscription(data.endpointName, 'Test/0/D', function(error) {
-      console.log('deleteResourceSubscription', error);
-      if (error) {
-        console.log(String(error));
-      } else {
-        socket.emit('unsubscribed-to-presses', {
-          endpointName: data.endpointName
-        });
-      }
-    });
-  });
+  // Called when the "Subscribe" checkbox is checked
+  subscribeToPresses: function(data, callback) {
+    mbedConnector.putResourceSubscription(data.endpointName, buttonResourceURI, callback);
+  },
 
-  socket.on('get-presses', function (data) {
-    console.log('get-presses', data);
-    mbedConnector.getResourceValue(data.endpointName, 'Test/0/D', function(error, value) {
-      console.log('getResourceValue', error, value);
+  // Called when the "Subscribe" checkbox is unchecked
+  unsubscribeToPresses: function(data, callback) {
+    mbedConnector.deleteResourceSubscription(data.endpointName, buttonResourceURI, callback);
+  },
 
-      socket.emit('presses', {
-        endpointName: data.endpointName,
-        value: value
-      });
-    });
-  });
+  // Called when the "GET" button is clicked
+  getPresses: function(data, callback) {
+    mbedConnector.getResourceValue(data.endpointName, buttonResourceURI, callback);
+  },
+
+  // Called when the "Update (PUT)" button is clicked
+  updateBlinkPattern: function(data, callback) {
+    mbedConnector.putResourceValue(data.endpointName, blinkPatternResourceURI, data.blinkPattern, callback);
+  },
+
+  // Called when the "Blink (POST)" button is clicked
+  blink: function(data, callback) {
+    mbedConnector.postResource(data.endpointName, blinkResourceURI, null, callback);
+  }
 });
 
-server.listen(port, function () {
-  console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
-
-  mbedConnector.startLongPolling();
-});
-
+// When notifications are received through the notification channel, pass the
+// data to the quickstart app for handling
 mbedConnector.on('notifications', function(notifications) {
-  console.log('notifications', notifications);
-  notifications.forEach(function(notification) {
-    if (notification.path === '/Test/0/D') {
-      sockets.forEach(function(socket) {
-        socket.emit('presses', {
-          endpointName: notification.ep,
-          value: notification.payload
-        });
-      });
-    }
-  })
-})
+  myQuickstart.handleNotifications(notifications, buttonResourceURI);
+});
+
+// Start the quickstart app listening on the given port
+myQuickstart.listen(port, function(error) {
+  if (error) throw error;
+  console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
+});

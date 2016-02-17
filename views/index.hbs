@@ -2,29 +2,74 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>title</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>mbed Device Connector Webapp Quickstart</title>
+
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/foundation.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-    <h1>Endpoints</h1>
-    <ul id="endpoints">
+    <div class="row margin">
+      <div class="small-12 columns">
+        <div><img src="img/ARMmbedLogo.png" alt="ARM mbed"></div>
+      </div>
+    </div>
+    <div class="blueband">
+      <div class="row">
+        <div class="small-12 columns">
+          <h1>Webapp Quickstart</h1>
+        </div>
+      </div>
+    </div>
+    <div id="endpoints">
     {{#each endpoints}}
-      <li id="{{name}}">
-        <h2>{{name}}</h2>
-        <h4>Presses: <span class="presses-value">Unknown</span></h4>
-        <label><input type="checkbox" class="subscribe-presses"> Subscribe</label>
-        <button class="get-presses">GET</button>
-      </li>
+      <div class="row" id="{{name}}">
+        <div class="small-12 columns">
+          <div class="row">
+            <div class="small-12 columns">
+              <h2>{{name}}</h2>
+            </div>
+          </div>
+          <div class="row">
+            <div class="small-12 medium-6 columns">
+              <h4>Presses: <span class="presses-value">Unknown</span></h4>
+              <label><input type="checkbox" class="subscribe-presses"> Subscribe</label>
+              <button class="get-presses">GET</button>
+            </div>
+            <div class="small-12 medium-6 columns">
+              <h4>LED Blink Pattern</h4>
+              <div>
+                <input type="text" value="{{blinkPattern}}" class="blink-pattern">
+              </div>
+              <div class="row">
+                <div class="small-6 columns">
+                  <button class="update-blink-pattern">Update (PUT)</button>
+                </div>
+                <div class="small-6 columns text-right">
+                  <button class="blink">Blink (POST)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     {{/each}}
-    </ul>
-    
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="js/socket.io.js"></script>
     <script type="text/javascript">
       $(function() {
         var socket = io();
-        
+
         $('#endpoints').children().each(function(index, element) {
           var _this = $(this);
           _this.find('.subscribe-presses').change(function() {
@@ -40,24 +85,43 @@
               });
             }
           });
-          
+
           _this.find('.get-presses').on('click', function() {
             socket.emit('get-presses', {
               endpointName: _this.attr('id')
             });
           });
+
+          _this.find('.blink-pattern').bind('input', function() {
+            _this.find('.update-blink-pattern').addClass('active');
+          })
+
+          _this.find('.update-blink-pattern').on('click', function() {
+            socket.emit('update-blink-pattern', {
+              endpointName: _this.attr('id'),
+              blinkPattern: _this.find('.blink-pattern').val()
+            });
+
+            $(this).removeClass('active');
+          });
+
+          _this.find('.blink').on('click', function() {
+            socket.emit('blink', {
+              endpointName: _this.attr('id')
+            });
+          });
         });
-        
-        
+
+
         socket.on('presses', function (data) {
           console.log('presses', data);
           $('#' + data.endpointName + ' .presses-value').html(data.value);
         });
-        
+
         socket.on('subscribed-to-presses', function (data) {
           console.log('subscribed-to-presses', data);
         });
-        
+
         socket.on('unsubscribed-to-presses', function (data) {
           console.log('unsubscribed-to-presses', data);
         });
