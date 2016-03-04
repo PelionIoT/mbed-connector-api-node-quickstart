@@ -27,8 +27,6 @@ This example assumes that you have an mbed Client connected to mbed Device Conne
 
 If you have an mbed, you can use the [mbed Client Example](https://github.com/ARMmbed/mbed-client-examples).
 
-If you don't have an mbed, you can use a Linux device instead. Checkout the [mbed Client Linux Example](https://github.com/ARMmbed/mbed-client-linux-example).
-
 ## Configuring the App
 
 Before running the app, you need to edit a few lines in `app.js`.
@@ -36,18 +34,14 @@ Before running the app, you need to edit a few lines in `app.js`.
 Open `app.js` and find the following lines:
 
 ```
-/* BEGIN EDITS */
-//var mbedConnectorAccessKey = "Your Access Key";
-//var endpointName = "Your endpoint name";
-var port = 3000;
-/* END EDITS */
+// CONFIG (change these)
+var accessKey = "<Access Key>";
+var port = process.env.PORT || 3000;
 ```
 
-Uncomment `mbedConnectorAccessKey` and replace `Your Access Key` with your Access Key you created in mbed Device Connector. If you do not have an Access Key, see the section [Creating an Access Key](#creating-an-access-key).
+Replace `<Access Key>` with your Access Key you created in mbed Device Connector. If you do not have an Access Key, see the section [Creating an Access Key](#creating-an-access-key). Your Access Key can also be changed through an environment variable named `ACCESS_KEY`.
 
-Uncomment `endpointName` and replace `Your endpoint name` with your endpoint's name you saw in mbed Device Connector. If you don't know your endpoint's name, see the section [Finding your Endpoint's Name](#finding-your-endpoints-name).
-
-You can usually leave `port` set to 3000. However, if you know you have another application running on that port or if you receive errors when starting the app, change this to another number (ex. 3001, 3002, etc.).
+You can usually leave `port` set to 3000. However, if you know you have another application running on that port or if you receive errors when starting the app, change this to another number (ex. 3001, 3002, etc.). The port can also be changed through an environment variable named `PORT`.
 
 ## Running the App
 
@@ -68,13 +62,9 @@ You should receive the following output:
 mbed Device Connector Quickstart listening at http://localhost:3000
 ```
 
-Copy and paste the printed URL into your browser and you should see a page listing the number of "Button Presses".
+Copy and paste the printed URL into your browser and you should see a page listing all of your connected mbed Clients.
 
 If you're running the mbed Client on an mbed, press the button indicated in the [mbed Client Example](https://github.com/ARMmbed/mbed-client-examples#testing) testing section.
-
-If you're running the mbed Client on Linux, the button presses should increment every 10 seconds.
-
-Refresh the page to update the "Button Presses" to the most recent value.
 
 ## Appendix
 
