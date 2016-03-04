@@ -3,7 +3,7 @@ var http = require('http');
 var path = require('path');
 var express = require('express');
 
-var Quickstart = function(options) {
+var Backend = function(options) {
   this.sockets = [];
 
   this.app = express();
@@ -17,7 +17,7 @@ var Quickstart = function(options) {
   this.blink = options.blink;
 };
 
-Quickstart.prototype.listen = function(port, callback) {
+Backend.prototype.listen = function(port, callback) {
   var _this = this;
 
   this.server = http.Server(this.app);
@@ -100,18 +100,16 @@ Quickstart.prototype.listen = function(port, callback) {
   });
 }
 
-Quickstart.prototype.handleNotifications = function(notifications, buttonResourceURI) {
+Backend.prototype.handleNotification = function(notification, buttonResourceURI) {
   var _this = this;
-  notifications.forEach(function(notification) {
-    if (notification.path === buttonResourceURI) {
-      _this.sockets.forEach(function(socket) {
-        socket.emit('presses', {
-          endpointName: notification.ep,
-          value: notification.payload
-        });
+  if (notification.path === buttonResourceURI) {
+    _this.sockets.forEach(function(socket) {
+      socket.emit('presses', {
+        endpointName: notification.ep,
+        value: notification.payload
       });
-    }
-  });
+    });
+  }
 }
 
-module.exports = Quickstart;
+module.exports = Backend;

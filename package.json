@@ -1,6 +1,6 @@
 {
   "name": "mbed-connector-node-quickstart",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Quickstart example for using the mbed Device Connector Node.js library.",
   "main": "app.js",
   "scripts": {
@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ARMmbed/mbed-connector-node-quickstart.git"
+    "url": "https://github.com/ARMmbed/mbed-connector-api-node-quickstart.git"
   },
   "dependencies": {
     "async": "^1.5.2",
     "express": "^4.13.3",
     "hbs": "~3.1.0",
-    "mbed-connector": "git+https://github.com/ARMmbed/mbed-connector-node.git#release-2.0.0",
+    "mbed-connector-api": "^2.0.0",
     "socket.io": "^1.4.5"
   }
 }
