@@ -1,3 +1,6 @@
+// Load .env config (silently fail if no .env present)
+require('dotenv').config({ silent: true });
+
 // Require necessary libraries
 var async = require('async');
 var ioLib = require('socket.io');
@@ -18,7 +21,7 @@ var buttonResourceURI = '/3200/0/5501';
 // Ensure the "ACCESS_KEY" environment variable is set
 if (!accessKey) {
   console.error('Please set the environment variable "ACCESS_KEY" to your mbed Device Connector Access Key.');
-  return -1;
+  process.exit(1);
 }
 
 if (!process.env.ACCESS_KEY && (!accessKey || accessKey === "<Access Key>")) {
@@ -46,9 +49,7 @@ app.get('/', function (req, res) {
       // Setup the function array
       var functionArray = endpoints.map(function(endpoint) {
         return function(mapCallback) {
-          console.log('gettin ' + endpoint.name);
           mbedConnectorApi.getResourceValue(endpoint.name, blinkPatternResourceURI, function(error, value) {
-            console.log('got ' + endpoint.name);
             endpoint.blinkPattern = value;
             mapCallback(error);
           });
@@ -58,7 +59,6 @@ app.get('/', function (req, res) {
       // Fetch all blink patterns in parallel, finish whell all HTTP
       // requests are complete (uses Async.js library)
       async.parallel(functionArray, function(error) {
-        console.log('cb', error);
         if (error) {
           res.send(String(error));
         } else {
