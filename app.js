@@ -12,6 +12,11 @@ var blinkResourceURI = "/3201/0/5850";
 var blinkPatternResourceURI = "/3201/0/5853";
 var buttonResourceURI = "/3200/0/5501";
 
+if (!process.env.ACCESS_KEY && (!accessKey || accessKey === "<Access Key>")) {
+  console.log("Please define your mbed Device Server Access Key as an environment variable (ACCESS_KEY) or in app.js.");
+  process.exit(1);
+}
+
 // Instantiate an mbed Device Connector object
 var mbedConnectorApi = new MbedConnectorApi({
   accessKey: process.env.ACCESS_KEY || accessKey // Allow access key to be overriden by an environment variable if need be

@@ -93,9 +93,13 @@ Backend.prototype.listen = function(port, callback) {
     });
   });
 
-  this.server.listen(port, function() {
-    _this.startLongPolling(function(error) {
+  this.startLongPolling(function(error) {
+    if (error) {
       callback(error);
+    }
+
+    _this.server.listen(port, function(listenError) {
+      callback(listenError);
     })
   });
 }
