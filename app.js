@@ -1,93 +1,156 @@
+// Load .env config (silently fail if no .env present)
+require('dotenv').config({ silent: true });
+
 // Require necessary libraries
 var async = require('async');
+var ioLib = require('socket.io');
+var http = require('http');
+var path = require('path');
+var express = require('express');
 var MbedConnectorApi = require('mbed-connector-api');
-var Backend = require('./backend');
 
 // CONFIG (change these)
-var accessKey = "<Access Key>";
-var port = process.env.PORT || 3000;
+var accessKey = process.env.ACCESS_KEY || "ChangeMe";
+var port = process.env.PORT || 8080;
 
 // Paths to resources on the endpoints
-var blinkResourceURI = "/3201/0/5850";
-var blinkPatternResourceURI = "/3201/0/5853";
-var buttonResourceURI = "/3200/0/5501";
-
-if (!process.env.ACCESS_KEY && (!accessKey || accessKey === "<Access Key>")) {
-  console.log("Please define your mbed Device Server Access Key as an environment variable (ACCESS_KEY) or in app.js.");
-  process.exit(1);
-}
+var blinkResourceURI = '/3201/0/5850';
+var blinkPatternResourceURI = '/3201/0/5853';
+var buttonResourceURI = '/3200/0/5501';
 
 // Instantiate an mbed Device Connector object
 var mbedConnectorApi = new MbedConnectorApi({
-  accessKey: process.env.ACCESS_KEY || accessKey // Allow access key to be overriden by an environment variable if need be
+  accessKey: accessKey
 });
 
-// Create the Backend app
-var myBackend = new Backend({
-  // Set up the notification channel (pull notifications)
-  startLongPolling: function(callback) {
-    mbedConnectorApi.startLongPolling(callback);
-  },
+// Create the express app
+var app = express();
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', function (req, res) {
   // Get all of the endpoints and necessary info to render the page
-  getEndpoints: function(callback) {
-    mbedConnectorApi.getEndpoints(function(error, endpoints) {
-      if (error) {
-        callback(error);
-      } else {
-        // Setup the function array
-        var functionArray = endpoints.map(function(endpoint) {
-          return function(mapCallback) {
-            mbedConnectorApi.getResourceValue(endpoint.name, blinkPatternResourceURI, function(error, value) {
-              endpoint.blinkPattern = value;
-              mapCallback(error);
-            });
-          };
-        });
+  mbedConnectorApi.getEndpoints(function(error, endpoints) {
+    if (error) {
+      throw error;
+    } else {
+      // Setup the function array
+      var functionArray = endpoints.map(function(endpoint) {
+        return function(mapCallback) {
+          mbedConnectorApi.getResourceValue(endpoint.name, blinkPatternResourceURI, function(error, value) {
+            endpoint.blinkPattern = value;
+            mapCallback(error);
+          });
+        };
+      });
 
-        // Fetch all blink patterns in parallel, finish whell all HTTP
-        // requests are complete (uses Async.js library)
-        async.parallel(functionArray, function(error) {
-          callback(error, endpoints);
-        });
-      }
+      // Fetch all blink patterns in parallel, finish when all HTTP
+      // requests are complete (uses Async.js library)
+      async.parallel(functionArray, function(error) {
+        if (error) {
+          res.send(String(error));
+        } else {
+          res.render('index', {
+            endpoints: endpoints
+          });
+        }
+      });
+    }
+  });
+});
+
+// Handle unexpected server errors
+app.use(function(err, req, res, next) {
+  console.log(err.stack);
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: err
+  });
+});
+
+var sockets = [];
+var server = http.Server(app);
+var io = ioLib(server);
+
+// Setup sockets for updating web UI
+io.on('connection', function (socket) {
+  // Add new client to array of client upon connection
+  sockets.push(socket);
+
+  socket.on('subscribe-to-presses', function (data) {
+    // Subscribe to all changes of resource /3200/0/5501 (button presses)
+    mbedConnectorApi.putResourceSubscription(data.endpointName, buttonResourceURI, function(error) {
+      if (error) throw error;
+      socket.emit('subscribed-to-presses', {
+        endpointName: data.endpointName
+      });
     });
-  },
+  });
 
-  // Called when the "Subscribe" checkbox is checked
-  subscribeToPresses: function(data, callback) {
-    mbedConnectorApi.putResourceSubscription(data.endpointName, buttonResourceURI, callback);
-  },
+  socket.on('unsubscribe-to-presses', function(data) {
+    // Unsubscribe from the resource /3200/0/5501 (button presses)
+    mbedConnectorApi.deleteResourceSubscription(data.endpointName, buttonResourceURI, function(error) {
+      if (error) throw error;
+      socket.emit('unsubscribed-to-presses', {
+        endpointName: data.endpointName
+      });
+    });
+  });
 
-  // Called when the "Subscribe" checkbox is unchecked
-  unsubscribeToPresses: function(data, callback) {
-    mbedConnectorApi.deleteResourceSubscription(data.endpointName, buttonResourceURI, callback);
-  },
+  socket.on('get-presses', function(data) {
+    // Read data from GET resource /3200/0/5501 (num button presses)
+    mbedConnectorApi.getResourceValue(data.endpointName, buttonResourceURI, function(error, value) {
+      if (error) throw error;
+      socket.emit('presses', {
+        endpointName: data.endpointName,
+        value: value
+      });
+    });
+  });
 
-  // Called when the "GET" button is clicked
-  getPresses: function(data, callback) {
-    mbedConnectorApi.getResourceValue(data.endpointName, buttonResourceURI, callback);
-  },
+  socket.on('update-blink-pattern', function(data) {
+    // Set data on PUT resource /3201/0/5853 (pattern of LED blink)
+    mbedConnectorApi.putResourceValue(data.endpointName, blinkPatternResourceURI, data.blinkPattern, function(error) {
+      if (error) throw error;
+    });
+  });
 
-  // Called when the "Update (PUT)" button is clicked
-  updateBlinkPattern: function(data, callback) {
-    mbedConnectorApi.putResourceValue(data.endpointName, blinkPatternResourceURI, data.blinkPattern, callback);
-  },
+  socket.on('blink', function(data) {
+    // POST to resource /3201/0/5850 (start blinking LED)
+    mbedConnectorApi.postResource(data.endpointName, blinkResourceURI, null, function(error) {
+      if (error) throw error;
+    });
+  });
 
-  // Called when the "Blink (POST)" button is clicked
-  blink: function(data, callback) {
-    mbedConnectorApi.postResource(data.endpointName, blinkResourceURI, null, callback);
-  }
+  socket.on('disconnect', function() {
+    // Remove this socket from the array when a user closes their browser
+    var index = sockets.indexOf(socket);
+    if (index >= 0) {
+      sockets.splice(index, 1);
+    }
+  })
 });
 
 // When notifications are received through the notification channel, pass the
-// data to the backend app for handling
+// button presses data to all connected browser windows
 mbedConnectorApi.on('notification', function(notification) {
-  myBackend.handleNotification(notification, buttonResourceURI);
+  if (notification.path === buttonResourceURI) {
+    sockets.forEach(function(socket) {
+      socket.emit('presses', {
+        endpointName: notification.ep,
+        value: notification.payload
+      });
+    });
+  }
 });
 
-// Start the backend app listening on the given port
-myBackend.listen(port, function(error) {
-  if (error) throw error;
-  console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
+// Start the app
+server.listen(port, function() {
+  // Set up the notification channel (pull notifications)
+  mbedConnectorApi.startLongPolling(function(error) {
+    if (error) throw error;
+    console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
+  })
 });
