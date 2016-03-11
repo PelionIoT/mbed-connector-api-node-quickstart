@@ -29,7 +29,7 @@ If you have an mbed, you can use the [mbed Client Example](https://github.com/AR
 
 ## Configuring the App
 
-Before running the app, you need to set some config options. This is done through environment variables or through a `.env` file in the root of the project.
+Before running the app, you need to set some config options. This is done through environment variables or by creating a `.env` file in the root of the project.
 
 The following variables are available to be configured:
 

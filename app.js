@@ -10,7 +10,7 @@ var express = require('express');
 var MbedConnectorApi = require('mbed-connector-api');
 
 // CONFIG (change these)
-var accessKey = process.env.ACCESS_KEY;
+var accessKey = process.env.ACCESS_KEY || "ChangeMe";
 var port = process.env.PORT || 8080;
 
 // Paths to resources on the endpoints
@@ -18,20 +18,9 @@ var blinkResourceURI = '/3201/0/5850';
 var blinkPatternResourceURI = '/3201/0/5853';
 var buttonResourceURI = '/3200/0/5501';
 
-// Ensure the "ACCESS_KEY" environment variable is set
-if (!accessKey) {
-  console.error('Please set the environment variable "ACCESS_KEY" to your mbed Device Connector Access Key.');
-  process.exit(1);
-}
-
-if (!process.env.ACCESS_KEY && (!accessKey || accessKey === "<Access Key>")) {
-  console.log("Please define your mbed Device Server Access Key as an environment variable (ACCESS_KEY) or in app.js.");
-  process.exit(1);
-}
-
 // Instantiate an mbed Device Connector object
 var mbedConnectorApi = new MbedConnectorApi({
-  accessKey: process.env.ACCESS_KEY || accessKey // Allow access key to be overriden by an environment variable if need be
+  accessKey: accessKey
 });
 
 // Create the express app
@@ -56,7 +45,7 @@ app.get('/', function (req, res) {
         };
       });
 
-      // Fetch all blink patterns in parallel, finish whell all HTTP
+      // Fetch all blink patterns in parallel, finish when all HTTP
       // requests are complete (uses Async.js library)
       async.parallel(functionArray, function(error) {
         if (error) {
@@ -85,6 +74,7 @@ var sockets = [];
 var server = http.Server(app);
 var io = ioLib(server);
 
+// Setup sockets for updating web UI
 io.on('connection', function (socket) {
   // Add new client to array of client upon connection
   sockets.push(socket);
