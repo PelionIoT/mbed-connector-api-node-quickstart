@@ -1,0 +1,7 @@
+{
+  "name": "mbed Connector Quickstart App",
+  "description": "A quickstart demo app to control IoT devices using mbed Connector",
+  "repository": "https://github.com/armmbed/mbed-connector-api-node-quickstart/tree/heroku",
+  "logo": "https://connector.mbed.com/img/ARMmbedLogo.svg",
+  "keywords": ["ARM mbed", "mbed connector", "connector", "IoT", "Device Connector"]
+}
