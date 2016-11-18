@@ -10,7 +10,7 @@ var express = require('express');
 var MbedConnectorApi = require('mbed-connector-api');
 
 // CONFIG (change these)
-var accessKey = process.env.ACCESS_KEY || "diNin5lSaulisjMZ6bDxIb4ri48y2SvypmxEohmP14Jdwg2WnVO8BOCyTSEQ1awZdARKkvsmMZWG8bblqIqXaWX5IzM1gMz7eZhR";
+var accessKey = process.env.ACCESS_KEY || "ChangeMe";
 var port = process.env.PORT || 8080;
 
 // Paths to resources on the endpoints
