@@ -3,6 +3,8 @@
 Example Node.js express app that talks to the mbed Device Connector.
 
 ## Getting Started
+Deploy to heroku or run the app locally.
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/armmbed/mbed-connector-api-node-quickstart/tree/heroku)
 
 ### Installing Node.js and npm
 
