@@ -7,11 +7,22 @@ var ioLib = require('socket.io');
 var http = require('http');
 var path = require('path');
 var express = require('express');
+var bodyParser = require('body-parser');
 var MbedConnectorApi = require('mbed-connector-api');
 
 // CONFIG (change these)
+var url_root = process.env.URL || "ChangeMe";
 var accessKey = process.env.ACCESS_KEY || "ChangeMe";
 var port = process.env.PORT || 8080;
+
+// URL to webhook route
+var url = url_root;
+
+if (url_root[url_root.length - 1] != '/') {
+  url += '/';
+}
+
+url += 'webhook';
 
 // Paths to resources on the endpoints
 var blinkResourceURI = '/3201/0/5850';
@@ -27,6 +38,7 @@ var mbedConnectorApi = new MbedConnectorApi({
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
@@ -58,6 +70,12 @@ app.get('/', function (req, res) {
       });
     }
   });
+});
+
+// Handle callbacks
+app.put('/webhook', function (req, res) {
+  mbedConnectorApi.handleNotifications(req.body);
+  res.sendStatus(200);
 });
 
 // Handle unexpected server errors
@@ -149,7 +167,9 @@ mbedConnectorApi.on('notification', function(notification) {
 // Start the app
 server.listen(port, function() {
   // Set up the notification channel (pull notifications)
-  mbedConnectorApi.startLongPolling(function(error) {
+  mbedConnectorApi.putCallback({
+    url: url
+  }, function(error) {
     if (error) throw error;
     console.log('mbed Device Connector Quickstart listening at http://localhost:%s', port);
   })
