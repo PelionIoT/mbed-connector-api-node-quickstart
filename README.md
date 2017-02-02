@@ -25,7 +25,7 @@ To install on Linux, you can use a package manager. Instructions for installing 
 
 This example assumes that you have an mbed Client connected to mbed Device Connector.
 
-If you have an mbed, you can use the [mbed Client Example](https://github.com/ARMmbed/mbed-client-examples).
+If you have an mbed, you can use the [mbed Client Example](https://github.com/ARMmbed/mbed-os-example-client).
 
 ## Configuring the App
 
@@ -67,7 +67,7 @@ mbed Device Connector Quickstart listening at http://localhost:8080
 
 Copy and paste the printed URL into your browser and you should see a page listing all of your connected mbed Clients.
 
-See the instructions in the [mbed Client example](https://github.com/ARMmbed/mbed-client-examples#testing-the-application) testing section to update the endpoint's button resource.
+See the instructions in the [mbed Client example](https://github.com/ARMmbed/mbed-os-example-client#testing-the-application) testing section to update the endpoint's button resource.
 
 ## Appendix
 
